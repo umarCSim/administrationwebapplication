@@ -1,0 +1,137 @@
+﻿@page "/flowsettings"
+@inherits HelperComponents
+@using AdministrationWebApplication.Services.DataServices
+@using AdministrationWebApplication.Models.Shared.Settings
+@inject DataService_FlowSettings dataService
+<h3>FlowSettings</h3>
+<Notifications NotificationLevel="@Notifications_Level" Message="@Notifications_Message" Show="@Notifications_IsVisible" ShowCallback="(callBackValue => Notifications_IsVisible = callBackValue)" />
+
+
+@if (ErrorOnLoad == true)
+{
+
+}
+else if (settings == null && ErrorOnLoad == false)
+{
+    <span>Loading...</span>
+}
+else
+{
+    <form>
+        <div class="form-group">
+            <label for="@settings[0].SettingId">@settings[0].SettingName</label>
+            <input class="form-control" id="@settings[0].SettingId" placeholder="@ParticipantId_Value" @bind-value="@ParticipantId_Value" maxlength="8" />
+        </div>
+
+        <div class="form-group">
+            <label for="@settings[1].SettingId">@settings[1].SettingName</label>
+            <input class="form-control" id="@settings[1].SettingId" placeholder="@CurrentSequence_Header_Value" @bind-value="@CurrentSequence_Header_Value" maxlength="9" />
+        </div>
+
+        <div class="form-group">
+            <label for="@settings[2].SettingId">@settings[2].SettingName</label>
+            <input class="form-control" id="@settings[2].SettingId" placeholder="@CurrentSequence_FileName_Value" @bind-value="@CurrentSequence_FileName_Value" maxlength="12" />
+        </div>
+
+        <div class="form-group">
+            <label for="@settings[3].SettingId">@settings[3].SettingName</label>
+            <input class="form-control" id="@settings[3].SettingId" placeholder="@DigitFormat_Value" @bind-value="@DigitFormat_Value" maxlength="12" />
+        </div>
+
+        <div class="form-group">
+            <label for="@settings[4].SettingId">@settings[4].SettingName</label>
+            <input readonly type="text" class="form-control-plaintext" id="@settings[4].SettingId" placeholder="@FileNameFormat_Value" @bind-value="@FileNameFormat_Value" />
+            <small class="form-text text-muted">Preview of the filename used for outgoing flows</small>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateWarningModal">Update</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-secondary" @onclick="(() => Load())">Undo All</button>
+            </div>
+        </div>
+    </form>
+}
+
+
+<div class="modal fade" id="updateWarningModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">WARNING</h5>
+            </div>
+            <div class="modal-body">
+                <span>Any changes made are <mark class="bg-warning">PERMANENT</mark> and <mark class="bg-warning">CANNOT</mark> be <mark class="bg-warning">UNDONE</mark>.</span>
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-warning" data-dismiss="modal" @onclick="(() => Update())">Understood</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    IList<FlowSettingsView> settings;
+    string ParticipantId_Value, CurrentSequence_Header_Value,
+        CurrentSequence_FileName_Value, DigitFormat_Value, FileNameFormat_Value;
+    bool ErrorOnLoad = false;
+
+    protected async Task Load()
+    {
+        settings = await dataService.GetDataAsync<FlowSettingsView>();
+        ParticipantId_Value = settings[0].SettingValue.ToString();
+        CurrentSequence_Header_Value = settings[1].SettingValue.ToString();
+        CurrentSequence_FileName_Value = settings[2].SettingValue.ToString();
+        DigitFormat_Value = settings[3].SettingValue.ToString();
+        FileNameFormat_Value = settings[4].SettingValue.ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await Load();
+            ErrorOnLoad = false;
+        }
+        catch (Exception e)
+        {
+            Notifications_Show(Notifications_LevelEnum.Error, "Could not load settings");
+            ErrorOnLoad = true;
+        }
+    }
+
+    protected async Task Update()
+    {
+        settings[0].SettingValue = ParticipantId_Value;
+        settings[1].SettingValue = CurrentSequence_Header_Value;
+        settings[2].SettingValue = CurrentSequence_FileName_Value;
+        settings[3].SettingValue = DigitFormat_Value;
+        settings[4].SettingValue = FileNameFormat_Value;
+
+        IList<FlowSettingsView> settingsCopy = settings;
+
+
+        try
+        {
+            await dataService.UpdateDataAsync<FlowSettingsView>(settingsCopy);
+            Notifications_Show(Notifications_LevelEnum.Success, "Settings updated");
+        }
+        catch (Exception e)
+        {
+            Notifications_Show(Notifications_LevelEnum.Error, "Could not update settings");
+        }
+
+
+        await Load();
+    }
+}

@@ -1,0 +1,32 @@
+﻿@*Inherit from this component to use helper components*@
+
+@code {
+    protected enum Notifications_LevelEnum
+    {
+        Info, Success, Warning, Error
+    }
+    protected string Notifications_Level { get; set; }
+    protected string Notifications_Message { get; set; }
+    protected bool Notifications_IsVisible { get; set; } = false;
+
+    protected void Notifications_Show(Notifications_LevelEnum notificationLevel, string message)
+    {
+        switch (notificationLevel)
+        {
+            case Notifications_LevelEnum.Info:
+                Notifications_Level = Notifications_LevelEnum.Info.ToString();
+                break;
+            case Notifications_LevelEnum.Success:
+                Notifications_Level = Notifications_LevelEnum.Success.ToString();
+                break;
+            case Notifications_LevelEnum.Warning:
+                Notifications_Level = Notifications_LevelEnum.Warning.ToString();
+                break;
+            case Notifications_LevelEnum.Error:
+                Notifications_Level = Notifications_LevelEnum.Error.ToString();
+                break;
+        }
+        Notifications_Message = message;
+        Notifications_IsVisible = true;
+    }
+}

@@ -1,0 +1,78 @@
+﻿@*Usage:
+Inherit from his component and place the following line at the top of your page
+<Notifications NotificationLevel="@Notifications_Level" Message="@Notifications_Message" Show="@Notifications_IsVisible" ShowCallback="(callBackValue => Notifications_IsVisible = callBackValue)" />
+Show a notification using the code below as an example
+<button type="button" class="btn btn-primary" @onclick='(() => Notifications_Show(Notifcations_LevelEnum.Info, "My Info"))'>Show Info</button>
+*@
+
+
+@if (Show)
+{
+    <div class="alert @BackgroundCssClass">
+        <button type="button" class="close" @onclick="(() => ShowCallback.InvokeAsync(false))">&times;</button>
+        <h5 class="alert-heading">@Heading</h5>
+        <p>@Message</p>
+    </div>
+}
+
+
+@code{
+    [Parameter]
+    public string NotificationLevel { get; set; }
+    //Info, Success, Warning, Error
+
+    [Parameter]
+    public string Message { get; set; }
+
+    [Parameter]
+    public bool Show { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<bool> ShowCallback { get; set; }
+    /*In parent, add parameter ShowCallback="(callBackValue => IsVisible = callBackValue) to the declaration of this component.
+     * IsVisible will be a bool property you will need to declare in your parent class so the call back can insert the new bool
+     value after the X is clicked on the alert.*/
+
+    public string BackgroundCssClass { get; set; }
+    public string Heading { get; set; }
+
+    private void BuildNotification(string notificationLevel)
+    {
+        if (notificationLevel != null)
+        {
+            if (notificationLevel.Equals("Info"))
+            {
+                BackgroundCssClass = "alert-info";
+                Heading = "Info";
+            }
+            else if (notificationLevel.Equals("Success"))
+            {
+                BackgroundCssClass = "alert-success";
+                Heading = "Success";
+            }
+            else if (notificationLevel.Equals("Warning"))
+            {
+                BackgroundCssClass = "alert-warning";
+                Heading = "Warning";
+            }
+            else if (notificationLevel.Equals("Error"))
+            {
+                BackgroundCssClass = "alert-danger";
+                Heading = "Error";
+            }
+            else
+            {
+                BackgroundCssClass = "alert-info";
+                Heading = "Info";
+            }
+        }
+
+    }
+
+    protected override void OnParametersSet()
+    {
+        BuildNotification(NotificationLevel);
+    }
+}
+
+

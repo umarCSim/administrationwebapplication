@@ -1,0 +1,85 @@
+﻿@page "/flowsummarytable"
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+@inherits HelperComponents
+@using AdministrationWebApplication.Services.DataServices
+@using AdministrationWebApplication.Models.Shared
+@inject DataService_FlowSummary dataService
+
+
+<h3>FlowSummaryTable</h3>
+
+
+@if (ErrorOnLoad == true)
+{
+
+}
+else if (flowSummaryData == null && ErrorOnLoad == false)
+{
+    <span>Loading...</span>
+}
+else
+{
+    <span>@FileHeaderIdOfSelectedItem</span>
+    <table class="display" id="DataTableId" style="width:100%">
+        <thead>
+            <tr>
+                @foreach (var field in dataService.HeaderFields)
+                {
+                    <th>
+                        @field
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in flowSummaryData)
+            {
+                <tr @onclick="(() => FileHeaderIdOfSelectedItem = (int) row.FileHeaderId)">
+                    <td>@row.FileHeaderId</td>
+                    <td>@row.SequenceNumber</td>
+                    <td>@row.CreationTime</td>
+                    <td>@row.ProcessEnded</td>
+                    <td>@row.FileType</td>
+                    <td>@row.MessageRole</td>
+                    <td>@row.FromRoleCode</td>
+                    <td>@row.FromParticipantId</td>
+                    <td>@row.ToRoleCode</td>
+                    <td>@row.ToParticipantId</td>
+                    <td>ACTIONS</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public string TransitType { get; set; }
+
+    public IList<FlowSummaryView> flowSummaryData { get; private set; }
+    bool ErrorOnLoad = false;
+    int FileHeaderIdOfSelectedItem = 0;
+
+    protected async Task Load()
+    {
+        flowSummaryData = await dataService.GetSummaryData(TransitType);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeAsync<object>("DataTableAdd", "#DataTableId");
+    }
+
+    public void Dispose()
+    {
+        JSRuntime.InvokeAsync<bool>("DataTableRemove", "#DataTableId");
+    }
+
+}

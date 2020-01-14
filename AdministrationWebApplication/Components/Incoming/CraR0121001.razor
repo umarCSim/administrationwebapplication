@@ -1,0 +1,81 @@
+﻿@inherits HelperComponents
+@using AdministrationWebApplication.Services.DataServices
+@using AdministrationWebApplication.Models.Flows.Incoming
+@inject DataService_Flows_Incoming dataService
+
+<h3>CraR0121001</h3>
+<Notifications NotificationLevel="@Notifications_Level" Message="@Notifications_Message" Show="@Notifications_IsVisible" ShowCallback="(callBackValue => Notifications_IsVisible = callBackValue)" />
+
+@if (ErrorOnLoad == true)
+{
+
+}
+else if (ListOfModelsofData == null && ErrorOnLoad == false)
+{
+    <span>Loading...</span>
+}
+else
+{
+    <form>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="btn-toolbar float-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-secondary" @onclick="(() => ChangeNumberOfColumnsDisplayed(1))">1</button>
+                            <button type="button" class="btn btn-secondary" @onclick="(() => ChangeNumberOfColumnsDisplayed(2))">2</button>
+                            <button type="button" class="btn btn-secondary" @onclick="(() => ChangeNumberOfColumnsDisplayed(3))">3</button>
+                            <button type="button" class="btn btn-secondary" @onclick="(() => ChangeNumberOfColumnsDisplayed(4))">4</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            @foreach (Dictionary<string, string> model in ListOfModelsofData)
+            {
+                <div class="row">
+                    @foreach (KeyValuePair<string, string> property in model)
+                    {
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="@property.Key">@property.Key</label>
+                                <input class="form-control" id="@property.Key" placeholder="@property.Value" readonly>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+    </form>
+}
+
+
+
+@code {
+    [Parameter]
+    public int FlowKeyId { get; set; } = 1;
+    [Parameter]
+    public int NumberOfColumns { get; set; } = 4;
+
+    public IList<Dictionary<string, string>> ListOfModelsofData { get; private set; }
+    bool ErrorOnLoad = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    protected async Task ChangeNumberOfColumnsDisplayed(int numberOfColumns)
+    {
+        NumberOfColumns = numberOfColumns;
+        await Load();
+    }
+
+    protected async Task Load()
+    {
+        ListOfModelsofData = await dataService.GetDataByIdTransposed<CraR0121001IncomingView>(FlowKeyId, NumberOfColumns);
+    }
+}
