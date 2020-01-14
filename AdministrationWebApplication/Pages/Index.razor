@@ -3,13 +3,35 @@
 @using AdministrationWebApplication.Components.Shared
 @using AdministrationWebApplication.Pages
 <h1>Showcase page</h1>
-<CraR0121001 FlowKeyId="1" NumberOfColumns="3" />
-<FlowSummaryTable TransitType="In" />
-    @*<FileProcessingDetails />*@
-@*<CraR0121001 FlowKeyId="1" NumberOfColumns="3" />
-<CraR0121001 FlowKeyId="1" NumberOfColumns="3" />*@
+<div class="row border-bottom">
+    <div class="col">
+        <FlowSummaryTable TransitType="In" 
+                          ActionCallback="callbackValue => CallbackActionNumber = callbackValue"
+                          HistoryIdCallback="callbackValue => CallbackHistoryId = callbackValue" />
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        @switch (CallbackActionNumber)
+        {
+            case 1:
+                <div class="jumbotron">
+                    <FileProcessingDetails Key="CallbackHistoryId" />
+                </div>
+                break;
+            case 2:
+                <div class="jumbotron">
+                    <CraR0121001 FlowKeyId="1" NumberOfColumns="3" />
+                </div>
+                break;
+        }
+    </div>
+</div>
+
+
 
 @code{
+    int CallbackActionNumber, CallbackHistoryId;
 
 
 

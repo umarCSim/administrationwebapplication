@@ -35,7 +35,7 @@ else
         <tbody>
             @foreach (var row in flowSummaryData)
             {
-                <tr @onclick="(() => FileHeaderIdOfSelectedItem = (int) row.FileHeaderId)">
+                <tr @onclick="(() => FileHeaderIdOfSelectedItem = (int)row.FileHeaderId)">
                     <td>@row.FileHeaderId</td>
                     <td>@row.SequenceNumber</td>
                     <td>@row.CreationTime</td>
@@ -46,7 +46,15 @@ else
                     <td>@row.FromParticipantId</td>
                     <td>@row.ToRoleCode</td>
                     <td>@row.ToParticipantId</td>
-                    <td>ACTIONS</td>
+                    <td>
+                        <button class="btn btn-light" data-toggle="dropdown">
+                            <span class="oi oi-cog"></span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" @onclick='(() => InvokeCallbacks(1, (int)row.HistoryId))'>File Details</a>
+                            <a class="dropdown-item" @onclick="(() => InvokeCallbacks(2, (int)row.FileHeaderId))">Flow</a>
+                        </div>
+                    </td>
                 </tr>
             }
 
@@ -57,6 +65,11 @@ else
 @code {
     [Parameter]
     public string TransitType { get; set; }
+
+    [Parameter]
+    public EventCallback<int> ActionCallback { get; set; }
+    [Parameter]
+    public EventCallback<int> HistoryIdCallback { get; set; }
 
     public IList<FlowSummaryView> flowSummaryData { get; private set; }
     bool ErrorOnLoad = false;
@@ -80,6 +93,12 @@ else
     public void Dispose()
     {
         JSRuntime.InvokeAsync<bool>("DataTableRemove", "#DataTableId");
+    }
+
+    void InvokeCallbacks(int actionNumber, int historyId)
+    {
+        ActionCallback.InvokeAsync(actionNumber);
+        HistoryIdCallback.InvokeAsync(historyId);
     }
 
 }

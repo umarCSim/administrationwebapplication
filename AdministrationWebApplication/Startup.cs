@@ -41,6 +41,9 @@ namespace AdministrationWebApplication
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddDbContext<DBContext_FileProcessingDetail>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<DBContext_Identity>();
@@ -53,6 +56,7 @@ namespace AdministrationWebApplication
             services.AddTransient<DataService_Flows_Incoming>();
             services.AddTransient<DataService_FlowSummary>();
             services.AddTransient<DataService_FlowSettings>();
+            services.AddTransient<DataService_FileProcessingDetails>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,7 +1,7 @@
 ﻿@inherits HelperComponents
 @using AdministrationWebApplication.Services.DataServices
 @using AdministrationWebApplication.Models.Shared
-@inject DataService dataService
+@inject DataService_FileProcessingDetails dataService
 
 <h3>FileProcessingDetails</h3>
 <Notifications NotificationLevel="@Notifications_Level" Message="@Notifications_Message" Show="@Notifications_IsVisible" ShowCallback="(callBackValue => Notifications_IsVisible = callBackValue)" />
@@ -64,6 +64,11 @@ else
     bool ErrorOnLoad = false;
 
     protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    protected override async Task OnParametersSetAsync()
     {
         await Load();
     }
